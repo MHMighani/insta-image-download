@@ -6,10 +6,12 @@ import urllib.request
 import os
 import pickle
 from pyfiglet import Figlet
+import shutil
 # main function for downloading post image
 
 
-def post_image_save(insta_page_name):
+def post_image_save(insta_page_name, dic):
+    list_of_post_ids = dic[insta_page_name]
 
     r = requests.get('https://www.instagram.com/' + insta_page_name)
     soup = BeautifulSoup(r.content, "lxml")
@@ -22,16 +24,25 @@ def post_image_save(insta_page_name):
 
     list_of_posts = (dic_file["graphql"]["user"]
                      ["edge_owner_to_timeline_media"]["edges"])
-
-    name = 1
-
+    print(dic_file)
     for index in range(12):
         post1 = list_of_posts[index]
-        link = post1["node"]["display_url"]
-        f = open("archive/" + insta_page_name + '/' + str(name) + '.jpg', 'wb')
-        f.write(urllib.request.urlopen(link).read())
-        f.close()
-        name = name + 1
+        id = post1["node"]["id"]
+        if id not in list_of_post_ids:
+            link = post1["node"]["display_url"]
+            f = open("archive/" + insta_page_name +
+                     '/' + str(id) + '.jpg', 'wb')
+            f.write(urllib.request.urlopen(link).read())
+            f.close()
+            list_of_post_ids.append(id)
+
+        else:
+            break
+
+    list_of_post_ids = list_of_post_ids[-12:]
+    dic[insta_page_name] = list_of_post_ids
+    pickle_file_dump("pages.pickle", dic)
+
 
 # this class is for checking necessary files and folders in current directory
 
@@ -72,7 +83,27 @@ def listing_page_names(dic):
         print("%d.%s" % (num, page_name))
         num += 1
     page = input("please enter number that you want to check > ")
-    return list_of_pages[int(page) - 1]
+    insta_page_name = list_of_pages[int(page) - 1]
+    return insta_page_name
+
+def delete_page():
+    print("choose page that you want to delete from list>>\n")
+    dic = pickle_file_load("pages.pickle")
+    page_name = listing_page_names(dic)
+    del dic[page_name]
+    pickle_file_dump("pages.pickle",dic)
+
+    while True:
+        option = input(
+            "Do you want to delete user images from archive too?? (Y/N) > ")
+        if option == "Y" or option == "y":
+            shutil.rmtree("archive/" + page_name)
+            break
+        elif option == "N" or option == "n":
+            break
+        else:
+            pass
+#---------------------------main options-----------------------------------------------------------------
 
 # this option is for checking one particular page for new posts
 
@@ -83,7 +114,7 @@ def option_one():
         print("Please first add a page!")
     else:
         page = listing_page_names(dic)
-        post_image_save(page)
+        post_image_save(page, dic)
 
 
 # for adding a new page to the list of pages
@@ -98,8 +129,11 @@ def option_two():
         pickle_file_dump("pages.pickle", dic)
         os.mkdir("archive/" + page_name)
 
-
+# for deleting particular page from list
+def option_three():
+	delete_page()
 # option_one()
+
 
 if __name__ == "__main__":
     main()
