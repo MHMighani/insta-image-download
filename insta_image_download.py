@@ -24,7 +24,8 @@ def post_image_save(insta_page_name, dic):
 
     list_of_posts = (dic_file["graphql"]["user"]
                      ["edge_owner_to_timeline_media"]["edges"])
-    print(dic_file)
+    
+    new_post_num = 0
     for index in range(12):
         post1 = list_of_posts[index]
         id = post1["node"]["id"]
@@ -35,6 +36,7 @@ def post_image_save(insta_page_name, dic):
             f.write(urllib.request.urlopen(link).read())
             f.close()
             list_of_post_ids.append(id)
+            new_post_num+=1
 
         else:
             break
@@ -42,8 +44,11 @@ def post_image_save(insta_page_name, dic):
     list_of_post_ids = list_of_post_ids[-12:]
     dic[insta_page_name] = list_of_post_ids
     pickle_file_dump("pages.pickle", dic)
-
-
+    if new_post_num!=0:
+    	print("\n%d posts are added to %s page, go and check it out!!"%(new_post_num,insta_page_name))
+    else:
+    	print("\nsorry no new posts are added to %s page :("%insta_page_name)	
+    
 # this class is for checking necessary files and folders in current directory
 
 
@@ -115,10 +120,22 @@ def option_one():
     else:
         page = listing_page_names(dic)
         post_image_save(page, dic)
+    input("\nPress any keys to go back to main menu > ")    
+        
 
+#to check all pages for new post and archive them
+def option_two():
+    dic = pickle_file_load("pages.pickle")
+    if dic == {}:
+    	print("Please first add a page")
+    else:
+    	for page in list(dic.keys()):
+    		post_image_save(page,dic)
+    		print(page)
+    input("\nAll pages are checked,press any keys to go back to main menu")		
 
 # for adding a new page to the list of pages
-def option_two():
+def option_three():
     dic = pickle_file_load("pages.pickle")
     list_of_pages = list(dic.keys())
     page_name = input("Please enter name of the page that you want to add> ")
@@ -129,10 +146,13 @@ def option_two():
         pickle_file_dump("pages.pickle", dic)
         os.mkdir("archive/" + page_name)
 
+
 # for deleting particular page from list
-def option_three():
+def option_four():
 	delete_page()
 # option_one()
+
+
 
 
 if __name__ == "__main__":
