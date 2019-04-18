@@ -7,9 +7,12 @@ import os
 import pickle
 from pyfiglet import Figlet
 import shutil
+import video_downloader
+
+
+dir_name = os.path.dirname(os.path.realpath(__file__))
+
 # main function for downloading post image
-
-
 def post_image_save(insta_page_name, dic):
     list_of_post_ids = dic[insta_page_name]
 
@@ -24,19 +27,25 @@ def post_image_save(insta_page_name, dic):
 
     list_of_posts = (dic_file["graphql"]["user"]
                      ["edge_owner_to_timeline_media"]["edges"])
-    
+
     new_post_num = 0
     for index in range(12):
         post1 = list_of_posts[index]
         id = post1["node"]["id"]
         if id not in list_of_post_ids:
-            link = post1["node"]["display_url"]
-            f = open("archive/" + insta_page_name +
-                     '/' + str(id) + '.jpg', 'wb')
-            f.write(urllib.request.urlopen(link).read())
-            f.close()
+            if(post1["node"]["is_video"] and Options.video_download):
+                shortcode = post1["node"]["shortcode"]
+                save_location = dir_name + "/archive/" + insta_page_name + "/"
+                video_downloader.video_downloader(
+                    "https://www.instagram.com/p/" + shortcode, save_location)
+            else:
+                link = post1["node"]["display_url"]
+                f = open("archive/" + insta_page_name +
+                         '/' + str(id) + '.jpg', 'wb')
+                f.write(urllib.request.urlopen(link).read())
+                f.close()
             list_of_post_ids.append(id)
-            new_post_num+=1
+            new_post_num += 1
 
         else:
             break
@@ -44,11 +53,12 @@ def post_image_save(insta_page_name, dic):
     list_of_post_ids = list_of_post_ids[-12:]
     dic[insta_page_name] = list_of_post_ids
     pickle_file_dump("pages.pickle", dic)
-    if new_post_num!=0:
-    	print("\n%d posts are added to %s page, go and check it out!!"%(new_post_num,insta_page_name))
+    if new_post_num != 0:
+        print("\n%d posts are added to %s page, go and check it out!!" %
+              (new_post_num, insta_page_name))
     else:
-    	print("\nsorry no new posts are added to %s page :("%insta_page_name)	
-    
+        print("\nsorry no new posts are added to %s page :(" % insta_page_name)
+
 # this class is for checking necessary files and folders in current directory
 
 
@@ -62,6 +72,10 @@ class Options:
             file.close()
         if "archive" not in files:
             os.mkdir("archive")
+    
+    video_download = True
+
+    
 
 # for loading a pickle file from current directory
 
@@ -91,12 +105,13 @@ def listing_page_names(dic):
     insta_page_name = list_of_pages[int(page) - 1]
     return insta_page_name
 
+
 def delete_page():
     print("choose page that you want to delete from list>>\n")
     dic = pickle_file_load("pages.pickle")
     page_name = listing_page_names(dic)
     del dic[page_name]
-    pickle_file_dump("pages.pickle",dic)
+    pickle_file_dump("pages.pickle", dic)
 
     while True:
         option = input(
@@ -120,21 +135,23 @@ def option_one():
     else:
         page = listing_page_names(dic)
         post_image_save(page, dic)
-    input("\nPress any keys to go back to main menu > ")    
-        
+    input("\nPress any keys to go back to main menu > ")
 
-#to check all pages for new post and archive them
+
+# to check all pages for new post and archive them
 def option_two():
     dic = pickle_file_load("pages.pickle")
     if dic == {}:
-    	print("Please first add a page")
+        print("Please first add a page")
     else:
-    	for page in list(dic.keys()):
-    		post_image_save(page,dic)
-    		print(page)
-    input("\nAll pages are checked,press any keys to go back to main menu")		
+        for page in list(dic.keys()):
+            post_image_save(page, dic)
+            print(page)
+    input("\nAll pages are checked,press any keys to go back to main menu")
 
 # for adding a new page to the list of pages
+
+
 def option_three():
     dic = pickle_file_load("pages.pickle")
     list_of_pages = list(dic.keys())
@@ -149,10 +166,11 @@ def option_three():
 
 # for deleting particular page from list
 def option_four():
-	delete_page()
-# option_one()
+    delete_page()
 
-
+#for turning video download off
+def option_five():
+	Options.video_download = False
 
 
 if __name__ == "__main__":

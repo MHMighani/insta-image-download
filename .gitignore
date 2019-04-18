@@ -1,3 +1,5 @@
 archive
 __pycache__
 pages.pickle
+geckodriver.log
+geckodriver
