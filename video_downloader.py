@@ -2,9 +2,12 @@ import urllib.request
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+import os
+current_path = os.path.dirname(os.path.realpath(__file__))
+exc_path = current_path + '/geckodriver'
 
 def video_downloader(url,save_location):
-	driver = webdriver.Firefox(executable_path=r'/home/hermes/Desktop/insta_video_downloader/geckodriver')
+	driver = webdriver.Firefox(executable_path=r'%s'%exc_path)
 	driver.get(url)
 	elementName = driver.find_elements_by_class_name("tWeCl");
 	src_url = elementName[0].get_attribute("src")

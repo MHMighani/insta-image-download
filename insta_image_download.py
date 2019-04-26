@@ -27,9 +27,10 @@ def post_image_save(insta_page_name, dic):
 
     list_of_posts = (dic_file["graphql"]["user"]
                      ["edge_owner_to_timeline_media"]["edges"])
-
+    
+    number_of_posts = len(list_of_posts)
     new_post_num = 0
-    for index in range(12):
+    for index in range(number_of_posts):
         post1 = list_of_posts[index]
         id = post1["node"]["id"]
         if id not in list_of_post_ids:
@@ -73,7 +74,7 @@ class Options:
         if "archive" not in files:
             os.mkdir("archive")
     
-    video_download = True
+    video_download = False
 
     
 
@@ -168,9 +169,9 @@ def option_three():
 def option_four():
     delete_page()
 
-#for turning video download off
+#for turning video download on
 def option_five():
-	Options.video_download = False
+	Options.video_download = True
 
 
 if __name__ == "__main__":

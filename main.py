@@ -7,7 +7,7 @@ menuItems = [
     {"Check all pages":option_two},
     {"Add a new page ": option_three},
     {"Delete a page":option_four},
-    {"turn video download off":option_five},
+    {"turn video download on":option_five},
     {"Exit": exit}
 ]
 
@@ -17,7 +17,9 @@ def main():
         os.system("clear")
         fig = Figlet(font='doom')
         print(fig.renderText("post download"))
-        print("ATTENTION: video download option is true as default!\n if you want to turn it off please choose option four :)")
+        print("ATTENTION: video download option is off as default!\
+            \nif you want to turn it on,first install selenium,\
+            \nthen choose option four :)\n")
         for item in menuItems:
             print("[" + str(menuItems.index(item)) + "]" + list(item.keys())[0])
 
