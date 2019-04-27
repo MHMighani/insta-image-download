@@ -173,6 +173,11 @@ def option_four():
 def option_five():
 	Options.video_download = True
 
+def option_six():
+    dic = pickle_file_load("pages.pickle")
+    page_name = listing_page_names(dic)
+    os.system("feh -F archive/" + page_name)
+
 
 if __name__ == "__main__":
     main()

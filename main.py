@@ -5,9 +5,10 @@ from insta_image_download import *
 menuItems = [
     {"Check one page for new post": option_one},
     {"Check all pages":option_two},
+    {"To see images of a page in slide show": option_six},
     {"Add a new page ": option_three},
     {"Delete a page":option_four},
-    {"turn video download on":option_five},
+    {"Turn video download on":option_five},
     {"Exit": exit}
 ]
 
