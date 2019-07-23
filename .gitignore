@@ -3,3 +3,4 @@ __pycache__
 pages.pickle
 geckodriver.log
 geckodriver
+.idea
